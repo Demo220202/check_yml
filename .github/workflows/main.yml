@@ -1,0 +1,110 @@
+name: Pull Request Automation
+ 
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master*
+      - beta*
+      - qa*
+ 
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+            fetch-depth: '0'
+
+      - name: Check if from Beta to Master
+        env: 
+          originalString: ${{ github.event.pull_request.title }}
+        if: ${{ github.event.pull_request.base.ref == 'master' && github.event.pull_request.head.ref == 'beta' }}
+        run: |
+          trimmedString=$(echo -n "$originalString" | awk '{$1=$1;print}')
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+          git push origin "$trimmedString"
+ 
+      - name: Check if PR base is master and head starts with hotfixes
+        env:
+          originalString: ${{ github.event.pull_request.title }}
+        if: ${{ github.event.pull_request.base.ref == 'master' }}
+        run: |
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          if [[ "${{ github.event.pull_request.head.ref }}" == hotfixes* ]]; then
+             echo "Valid hotfix branch. Proceeding with tagging."
+             
+             # Trim whitespace from the title
+             trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         
+             git config --local user.email "action@github.com"
+             git config --local user.name "GitHub Action"
+             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             git push origin "$trimmedString"
+          else
+             echo "Branch does not start with 'hotfixes'. Skipping."
+          fi
+          
+      - name: Check if PR base is beta and head starts with qa
+        env:
+          originalString: ${{ github.event.pull_request.title }}
+        if: ${{ github.event.pull_request.base.ref == 'beta' }}
+        run: |
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          if [[ "${{ github.event.pull_request.head.ref }}" == qa* ]]; then
+             echo "Valid hotfix branch. Proceeding with tagging."
+             
+             # Trim whitespace from the title
+             trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         
+             git config --local user.email "action@github.com"
+             git config --local user.name "GitHub Action"
+             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             git push origin "$trimmedString"
+          else
+             echo "Branch does not start with 'hotfixes'. Skipping."
+          fi
+        
+      - name: Check if PR base is beta and head starts with qa2
+        env:
+          originalString: ${{ github.event.pull_request.title }}
+        if: ${{ github.event.pull_request.base.ref == 'beta' }}
+        run: |
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          if [[ "${{ github.event.pull_request.head.ref }}" == qa2* ]]; then
+             echo "Valid hotfix branch. Proceeding with tagging."
+             
+             # Trim whitespace from the title
+             trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         
+             git config --local user.email "action@github.com"
+             git config --local user.name "GitHub Action"
+             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             git push origin "$trimmedString"
+          else
+             echo "Branch does not start with 'hotfixes'. Skipping."
+          fi
+      
+      - name: Check if PR base is beta and head starts with hotfixes
+        env:
+          originalString: ${{ github.event.pull_request.title }}
+        if: ${{ github.event.pull_request.base.ref == 'beta' }}
+        run: |
+          head_ref="${{ github.event.pull_request.head.ref }}"
+          if [[ "${{ github.event.pull_request.head.ref }}" == hotfixes* ]]; then
+             echo "Valid hotfix branch. Proceeding with tagging."
+             
+             # Trim whitespace from the title
+             trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         
+             git config --local user.email "action@github.com"
+             git config --local user.name "GitHub Action"
+             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             git push origin "$trimmedString"
+          else
+             echo "Branch does not start with 'hotfixes'. Skipping."
+          fi
