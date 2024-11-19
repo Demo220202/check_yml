@@ -80,29 +80,16 @@ jobs:
         if: ${{ github.event.pull_request.base.ref == 'beta' }}
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
-          if [[ "$head_ref" == hotfixes* ]]; then
-            echo "Valid hotfix branch. Proceeding with tagging."
-            echo "Original String: $originalString"
-            
-            # Ensure originalString is not empty
-            if [ -z "$originalString" ]; then
-              echo "Error: originalString is empty!"
-              exit 1
-            fi
-            
-            # Safely trim whitespace
-            trimmedString=$(echo "$originalString" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-            # Ensure trimmedString is not empty
-            if [ -z "$trimmedString" ]; then
-              echo "Error: trimmedString is empty!"
-              exit 1
-            fi
-
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
-            git push origin "$trimmedString"
+          if [[ "${{ github.event.pull_request.head.ref }}" == hotfixes* ]]; then
+             echo "Valid hotfix branch. Proceeding with tagging."
+             
+             # Trim whitespace from the title
+             trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         
+             git config --local user.email "action@github.com"
+             git config --local user.name "GitHub Action"
+             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             git push origin "$trimmedString"
           else
-            echo "Branch does not start with 'hotfixes'. Skipping."
+             echo "Branch does not start with 'hotfixes'. Skipping."
           fi
