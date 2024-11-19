@@ -75,12 +75,30 @@ jobs:
           fi
       
       - name: Check if PR base is beta and head starts with hotfixes
+        env:
+          originalString: ${{ github.event.pull_request.title }}
         if: ${{ github.event.pull_request.base.ref == 'beta' }}
         run: |
           head_ref="${{ github.event.pull_request.head.ref }}"
           if [[ "$head_ref" == hotfixes* ]]; then
             echo "Valid hotfix branch. Proceeding with tagging."
-            trimmedString=$(echo -n "$originalString" | awk '{$1=$1;print}')
+            echo "Original String: $originalString"
+            
+            # Ensure originalString is not empty
+            if [ -z "$originalString" ]; then
+              echo "Error: originalString is empty!"
+              exit 1
+            fi
+            
+            # Safely trim whitespace
+            trimmedString=$(echo "$originalString" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+            # Ensure trimmedString is not empty
+            if [ -z "$trimmedString" ]; then
+              echo "Error: trimmedString is empty!"
+              exit 1
+            fi
+
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
