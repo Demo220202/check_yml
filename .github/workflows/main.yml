@@ -66,7 +66,7 @@ jobs:
              git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
              git push origin "$trimmedString"
           else
-             echo "Branch does not start with 'hotfixes'. Skipping."
+             echo "Branch does not start with 'qa'. Skipping."
           fi
         
       - name: Check if PR base is beta and head starts with qa2
@@ -86,7 +86,7 @@ jobs:
              git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
              git push origin "$trimmedString"
           else
-             echo "Branch does not start with 'hotfixes'. Skipping."
+             echo "Branch does not start with 'qa2'. Skipping."
           fi
       
       - name: Check if PR base is beta and head starts with hotfixes
