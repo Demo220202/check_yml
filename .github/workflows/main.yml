@@ -60,11 +60,19 @@ jobs:
              
              # Trim whitespace from the title
              trimmedString=$(echo "${{ github.event.pull_request.title }}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-         
+
              git config --local user.email "action@github.com"
              git config --local user.name "GitHub Action"
-             git tag -a "$trimmedString" -m "${{ github.event.pull_request.body }}"
+             
+             # Store PR body in a temporary file
+             echo "${{ github.event.pull_request.body }}" > tag_message.txt
+
+             # Create the tag using the file
+             git tag -a "$trimmedString" -F tag_message.txt
              git push origin "$trimmedString"
+
+             # Clean up
+             rm tag_message.txt
           else
              echo "Branch does not start with 'hotfixes'. Skipping."
           fi
